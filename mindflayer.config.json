@@ -1,0 +1,15 @@
+{
+  "mandatory_tests": [
+    "## Mandatory Test Suite: Core Smoke Tests",
+    "",
+    "### Scenario: Landing page loads correctly",
+    "- Navigate to {TARGET_URL}",
+    "- Assert page contains \"TestingQA\"",
+    "",
+    "### Scenario: Run Tests button works",
+    "- Navigate to {TARGET_URL}",
+    "- Click \"Run Tests\"",
+    "- Assert page contains \"Tests queued successfully.\""
+  ],
+  "max_generated_tests": 10
+}
