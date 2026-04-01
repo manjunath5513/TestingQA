@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TestingQA</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .container { text-align: center; max-width: 600px; padding: 2rem; }
+    h1 { font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    p { font-size: 1.1rem; line-height: 1.8; color: #94a3b8; margin-bottom: 1.5rem; }
+    .btn { display: inline-block; padding: 0.75rem 2rem; background: #3b82f6; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; transition: background 0.2s; }
+    .btn:hover { background: #2563eb; }
+    .status { margin-top: 2rem; padding: 1rem; background: #1e293b; border-radius: 8px; font-size: 0.9rem; color: #22c55e; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>TestingQA</h1>
+    <p>A sample application for validating SentinelQA automated testing pipeline. This page serves as the test target for end-to-end browser tests.</p>
+    <a href="#run" class="btn" id="runBtn" onclick="document.getElementById('output').textContent='Tests queued successfully.'">Run Tests</a>
+    <div class="status" id="output">System ready. No tests running.</div>
+  </div>
+</body>
+</html>
