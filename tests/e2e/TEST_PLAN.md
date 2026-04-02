@@ -1,6 +1,6 @@
 # SentinelQA — Auto-Generated Test Plan
 
-> Generated on 2026-04-02T09:24:16.724Z
+> Generated on 2026-04-02T09:49:51.543Z
 
 ## Scenario 1: Landing Page Verification
 1. Navigate to http://localhost:5173
@@ -17,3 +17,11 @@
 ## Scenario 4: Authentication Page Snapshot
 1. Navigate to http://localhost:5173/auth
 2. Take a snapshot of the page
+
+## Scenario 5: Correct Landing Page Heading
+1. Navigate to http://localhost:5173
+2. Assert the page contains "the main heading"
+
+## Scenario 6: Correct Authentication Page Form
+1. Navigate to http://localhost:5173/auth
+2. Assert the page contains "a login form"
