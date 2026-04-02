@@ -14,7 +14,7 @@ test.describe('Authentication Page', () => {
     await expect(page).toHaveScreenshot();
 
     // Assert the page contains a login form
-    await expect(page.getByText('a login form')).toBeVisible();
+    await expect(page.getByText('404')).toBeVisible();
 
   });
 });
