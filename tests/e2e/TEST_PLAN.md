@@ -1,6 +1,6 @@
 # SentinelQA — Auto-Generated Test Plan
 
-> Generated on 2026-04-02T02:18:52.135Z
+> Generated on 2026-04-02T02:26:18.238Z
 
 ## Scenario: Landing page loads with correct title and heading
 1. Navigate to http://localhost:5173
