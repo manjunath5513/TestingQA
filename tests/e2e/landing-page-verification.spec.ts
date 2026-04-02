@@ -14,7 +14,7 @@ test.describe('Landing Page Verification', () => {
     await expect(page).toHaveScreenshot();
 
     // Assert the page contains the main heading
-    await expect(page.getByText('the main heading')).toBeVisible();
+    await expect(page.getByText('TestingQA')).toBeVisible();
 
   });
 });
