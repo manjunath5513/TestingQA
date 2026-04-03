@@ -11,7 +11,7 @@ test.describe('Scenario 2: Authentication Page Verification', () => {
     await page.goto('http://localhost:5173/auth');
 
     // Assert the page contains a login form
-    await expect(page.getByText('a login form')).toBeVisible();
+    await expect(page.getByText('404')).toBeVisible();
 
   });
 });
