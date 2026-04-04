@@ -11,7 +11,7 @@ test.describe('Scenario 1: Landing Page Verification', () => {
     await page.goto('http://localhost:5173');
 
     // Assert the page contains the main heading
-    await expect(page.getByText('the main heading')).toBeVisible();
+    await expect(page.getByText('TestingQA')).toBeVisible();
 
   });
 });
