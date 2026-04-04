@@ -1,6 +1,6 @@
 # SentinelQA — Auto-Generated Test Plan
 
-> Generated on 2026-04-02T10:48:57.281Z
+> Generated on 2026-04-04T11:58:57.372Z
 
 ## Scenario 1: Landing Page Verification
 1. Navigate to http://localhost:5173
