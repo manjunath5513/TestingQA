@@ -1,6 +1,6 @@
 # SentinelQA — Auto-Generated Test Plan
 
-> Generated on 2026-04-16T10:10:01.533Z
+> Generated on 2026-04-16T10:16:55.573Z
 
 ## Scenario: Landing page title and core content remain unchanged  
 1. Navigate to http://127.0.0.1:4173  
