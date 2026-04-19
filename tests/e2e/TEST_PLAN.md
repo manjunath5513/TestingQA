@@ -1,35 +1,25 @@
-# SentinelQA — Auto-Generated Test Plan
+# MindFlayer — Auto-Generated Test Plan
 
-> Generated on 2026-04-18T15:06:00.873Z
+> Generated on 2026-04-19T10:50:50.470Z
 
-## Scenario: Verify landing page title and content
+## Scenario: Landing page title and core content remain unchanged  
+1. Navigate to http://127.0.0.1:5600/  
+2. Assert page contains "TestingQA"  
+3. Assert page contains "A sample application for validating SentinelQA automated testing pipeline"  
 
-1. Navigate to `/`
-2. Assert page contains "TestingQA"
-3. Assert page contains "A sample application for validating SentinelQA automated testing pipeline."
-4. Assert page contains "Run Tests"
-5. Assert page contains "System ready. No tests running."
+## Scenario: Run Tests button is present and clickable  
+1. Navigate to http://127.0.0.1:5600/  
+2. Click "Run Tests"  
+3. Assert page contains "Tests queued successfully."  
 
-## Scenario: Verify login form heading and content
+## Scenario: Dashboard renders with correct seeded task structure  
+1. Navigate to http://127.0.0.1:5600/  
+2. Click "Open operations console"  
+3. Assert page contains "Audit checkout release gate"  
+4. Assert page contains "Review the checkout smoke pack, confirm payment widget telemetry, and prepare the rollback note before the release"  
 
-1. Navigate to `/login`
-2. Assert page contains "Sign In"
-3. Assert page contains "TestingQA demo target"
-
-## Scenario: Verify dashboard renders correctly
-
-1. Navigate to `/dashboard`
-2. Assert page contains the expected dashboard structure and content based on the ORIGINAL `src/views/dashboard.js` logic
-
-## Scenario: Verify operations console button is present and clickable
-
-1. Navigate to `/`
-2. Assert page contains "Simulate a real QA control room."
-3. Click "Open operations console"
-4. Assert operations console opens correctly
-
-## Scenario: Verify run tests button is present and clickable
-
-1. Navigate to `/`
-2. Click "Run Tests"
-3. Assert page contains "Tests queued successfully."
+## Scenario: Login form heading and content remain correct  
+1. Navigate to http://127.0.0.1:5600/  
+2. Click "Sign In"  
+3. Assert page contains "Sign In"  
+4. Assert page does not contain "Simulate a real QA control room."
