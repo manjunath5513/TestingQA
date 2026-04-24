@@ -3,24 +3,280 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TestingQA</title>
+  <title>TestingQA Control Surface</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-    .container { text-align: center; max-width: 600px; padding: 2rem; }
-    h1 { font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    p { font-size: 1.1rem; line-height: 1.8; color: #94a3b8; margin-bottom: 1.5rem; }
-    .btn { display: inline-block; padding: 0.75rem 2rem; background: #3b82f6; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; transition: background 0.2s; }
-    .btn:hover { background: #2563eb; }
-    .status { margin-top: 2rem; padding: 1rem; background: #1e293b; border-radius: 8px; font-size: 0.9rem; color: #22c55e; }
+    :root {
+      color-scheme: dark;
+      --panel: rgba(9, 20, 36, 0.9);
+      --panel-strong: rgba(13, 26, 46, 0.96);
+      --border: rgba(148, 163, 184, 0.18);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(34, 197, 94, 0.16), transparent 22%),
+        linear-gradient(160deg, #030712 0%, #07111f 48%, #0b1730 100%);
+      color: var(--text);
+    }
+    .app-shell {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+    .landing {
+      min-height: calc(100vh - 56px);
+      display: grid;
+      grid-template-columns: 1.4fr 0.9fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+    .landing-copy,
+    .landing-side,
+    .workspace-shell { padding: 28px; }
+    .eyebrow {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.12);
+      color: #bae6fd;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, h4, p { margin: 0; }
+    .landing-copy h1 {
+      margin-top: 24px;
+      font-size: clamp(2.8rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+    .landing-copy p {
+      margin-top: 18px;
+      font-size: 1.08rem;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 760px;
+    }
+    .cta-row,
+    .nav-row,
+    .filter-row,
+    .action-row { display: flex; flex-wrap: wrap; gap: 12px; }
+    .cta-row { margin-top: 28px; }
+    button, select, input, textarea { font: inherit; }
+    .btn {
+      appearance: none;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: linear-gradient(135deg, #22c55e, #14b8a6); color: #032011; }
+    .btn-secondary {
+      background: rgba(148, 163, 184, 0.12);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, 0.28);
+    }
+    .grid-two, .split {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 26px;
+    }
+    .feature-card,
+    .side-card,
+    .stat-card,
+    .surface {
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--panel-strong);
+      padding: 18px;
+    }
+    .feature-card small,
+    .side-card small,
+    .meta,
+    .helper,
+    .timeline small { color: var(--muted); }
+    .landing-side { display: flex; flex-direction: column; gap: 18px; }
+    .credentials { display: grid; gap: 12px; margin-top: 18px; }
+    .credential {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+    .workspace-shell { display: grid; gap: 18px; }
+    .workspace-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+    }
+    .workspace-title p,
+    .notice p { margin-top: 8px; color: var(--muted); line-height: 1.7; }
+    .user-chip {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: #bbf7d0;
+      background: rgba(34, 197, 94, 0.12);
+      white-space: nowrap;
+    }
+    .notice {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(56, 189, 248, 0.24);
+      background: rgba(56, 189, 248, 0.08);
+    }
+    .notice.warning {
+      border-color: rgba(251, 191, 36, 0.32);
+      background: rgba(251, 191, 36, 0.12);
+    }
+    .notice.success {
+      border-color: rgba(34, 197, 94, 0.32);
+      background: rgba(34, 197, 94, 0.12);
+    }
+    .nav-pill,
+    .filter-pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.75);
+      color: var(--text);
+      cursor: pointer;
+    }
+    .nav-pill.active,
+    .filter-pill.active {
+      background: rgba(34, 197, 94, 0.18);
+      border-color: rgba(34, 197, 94, 0.4);
+      color: #bbf7d0;
+    }
+    .card-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .stat-card strong { display: block; margin-top: 14px; font-size: 2rem; }
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.8fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .surface h3,
+    .surface h4 { margin-bottom: 12px; }
+    form { display: grid; gap: 14px; }
+    label {
+      display: grid;
+      gap: 8px;
+      color: #dbeafe;
+      font-size: 0.94rem;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      background: rgba(2, 6, 23, 0.7);
+      color: var(--text);
+      outline: none;
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    .task-stack,
+    .timeline { display: grid; gap: 12px; }
+    .task-row {
+      display: grid;
+      gap: 12px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(8, 15, 28, 0.88);
+      padding: 18px;
+    }
+    .task-row.active {
+      border-color: rgba(56, 189, 248, 0.44);
+      box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.22);
+    }
+    .task-topline,
+    .task-meta,
+    .detail-grid { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      border: 1px solid transparent;
+    }
+    .badge.pending { background: rgba(56, 189, 248, 0.12); color: #bae6fd; border-color: rgba(56, 189, 248, 0.25); }
+    .badge.in_progress { background: rgba(251, 191, 36, 0.12); color: #fde68a; border-color: rgba(251, 191, 36, 0.25); }
+    .badge.completed { background: rgba(34, 197, 94, 0.12); color: #bbf7d0; border-color: rgba(34, 197, 94, 0.25); }
+    .badge.high { background: rgba(251, 113, 133, 0.14); color: #fecdd3; border-color: rgba(251, 113, 133, 0.25); }
+    .badge.medium { background: rgba(192, 132, 252, 0.14); color: #e9d5ff; border-color: rgba(192, 132, 252, 0.25); }
+    .badge.low { background: rgba(148, 163, 184, 0.14); color: #e2e8f0; border-color: rgba(148, 163, 184, 0.25); }
+    .timeline-item {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(8, 15, 28, 0.82);
+    }
+    .empty-state {
+      padding: 28px;
+      text-align: center;
+      border: 1px dashed rgba(148, 163, 184, 0.28);
+      border-radius: 18px;
+      color: var(--muted);
+    }
+    @media (max-width: 1024px) {
+      .landing,
+      .workspace-grid,
+      .card-row,
+      .split { grid-template-columns: 1fr; }
+      .workspace-header { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>TestingQA</h1>
-    <p>A sample application for validating SentinelQA automated testing pipeline. This page serves as the test target for end-to-end browser tests.</p>
-    <a href="#run" class="btn" id="runBtn" onclick="document.getElementById('output').textContent='Tests queued successfully.'">Run Tests</a>
-    <div class="status" id="output">System ready. No tests running.</div>
-  </div>
+  <main class="app-shell">
+    <div id="app" class="panel">
+      <div class="container">
+        <h1>TestingQA</h1>
+        <p>A sample application for validating SentinelQA automated testing pipeline. This page serves as the test target for end-to-end browser tests.</p>
+        <a href="#run" class="btn" id="runBtn" onclick="document.getElementById('output').textContent='Tests queued successfully.'">Run Tests</a>
+        <div class="status" id="output">System ready. No tests running.</div>
+      </div>
+    </div>
+  </main>
+  <script type="module" src="./src/app.js"></script>
 </body>
 </html>
