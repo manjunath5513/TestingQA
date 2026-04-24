@@ -37,7 +37,57 @@ function setNotice(title, message, tone = "success") {
 }
 
 function renderLanding() {
-  renderLogin(state.loginError);
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="landing">
+      <div class="landing-copy panel">
+        <div class="eyebrow">
+          <span>TestingQA</span>
+          <span>Control Surface</span>
+        </div>
+        <h1>Simulate a real QA control room.</h1>
+        <p>This console mimics a release management dashboard with task tracking, analytics, and dispatch actions. Use it to validate end‑to‑end testing flows.</p>
+        <div class="cta-row">
+          <button class="btn btn-primary" id="openConsoleBtn">Open operations console</button>
+          <button class="btn btn-secondary">View documentation</button>
+        </div>
+        <div class="grid-two">
+          <div class="feature-card">
+            <h4>Task board</h4>
+            <p>Create, filter, and track verification tasks.</p>
+            <small class="meta">Supports status, priority, deadlines</small>
+          </div>
+          <div class="feature-card">
+            <h4>Release reports</h4>
+            <p>Generate outlooks and audit release gates.</p>
+            <small class="meta">Regression outlook, dispatch lab</small>
+          </div>
+        </div>
+      </div>
+      <div class="landing-side panel">
+        <h3>Test credentials</h3>
+        <p>Use these to sign in and explore the workspace.</p>
+        <div class="credentials">
+          <div class="credential">
+            <span>Email</span>
+            <code>admin@test.com</code>
+          </div>
+          <div class="credential">
+            <span>Password</span>
+            <code>admin123</code>
+          </div>
+        </div>
+        <div class="side-card">
+          <h4>Quick start</h4>
+          <p>Click “Open operations console” to begin. You’ll be taken to a sign‑in screen.</p>
+          <small class="helper">The console uses a mock auth layer—no real credentials are stored.</small>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('openConsoleBtn').addEventListener('click', () => {
+    router.navigate('/login');
+  });
 }
 
 function getVisibleTasks() {
