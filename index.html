@@ -268,7 +268,14 @@
 </head>
 <body>
   <main class="app-shell">
-    <div id="app" class="panel"></div>
+    <div id="app" class="panel">
+      <div class="container">
+        <h1>TestingQA</h1>
+        <p>A sample application for validating SentinelQA automated testing pipeline. This page serves as the test target for end-to-end browser tests.</p>
+        <a href="#run" class="btn" id="runBtn" onclick="document.getElementById('output').textContent='Tests queued successfully.'">Run Tests</a>
+        <div class="status" id="output">System ready. No tests running.</div>
+      </div>
+    </div>
   </main>
   <script type="module" src="./src/app.js"></script>
 </body>
