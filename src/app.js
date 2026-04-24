@@ -17,6 +17,7 @@ const state = {
   selectedTaskId: null,
   notice: null,
   loginError: "",
+  isAuthenticated: false,
 };
 
 const filters = [
@@ -37,7 +38,11 @@ function setNotice(title, message, tone = "success") {
 }
 
 function renderLanding() {
-  renderLogin(state.loginError);
+  if (state.isAuthenticated) {
+    renderDashboard(tasks.getAll());
+  } else {
+    renderLogin(state.loginError);
+  }
 }
 
 function getVisibleTasks() {
