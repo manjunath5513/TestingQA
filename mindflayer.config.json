@@ -35,5 +35,5 @@
     "15. Click \"Mark complete\"",
     "16. Assert page contains \"Task completed\""
   ],
-  "max_generated_tests": 0
+  "max_generated_tests": 5
 }
