@@ -1,17 +1,17 @@
 # SentinelQA — Auto-Generated Test Plan
 
-> Generated on 2026-04-24T14:03:09.250Z
+> Generated on 2026-04-25T08:05:08.796Z
 
 ## Mandatory Test Suite: QA Console Regression Flow
 
 ## Scenario: Landing page opens the operations console
-1. Navigate to http://127.0.0.1:4173
+1. Navigate to http://127.0.0.1:11019
 2. Assert page contains "Simulate a real QA control room."
 3. Click "Open operations console"
 4. Assert page contains "Sign In"
 
 ## Scenario: Sign in and open the task board
-1. Navigate to http://127.0.0.1:4173
+1. Navigate to http://127.0.0.1:11019
 2. Click "Open operations console"
 3. Fill "admin@test.com" into "Email"
 4. Fill "admin123" into "Password"
@@ -20,7 +20,7 @@
 7. Assert page contains "Audit checkout release gate"
 
 ## Scenario: Create a task and review reports
-1. Navigate to http://127.0.0.1:4173
+1. Navigate to http://127.0.0.1:11019
 2. Click "Open operations console"
 3. Fill "admin@test.com" into "Email"
 4. Fill "admin123" into "Password"
