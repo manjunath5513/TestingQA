@@ -1,57 +1,324 @@
 import { Router } from "./router.js";
 import { AuthService } from "./services/auth.js";
 import { TaskService } from "./services/tasks.js";
+import { analytics } from "./services/analytics.js";
+import { notifications } from "./services/notifications.js";
 import { renderDashboard } from "./views/dashboard.js";
 import { renderLogin } from "./views/login.js";
 import { logger } from "./utils/logger.js";
+import { validateTaskTitle } from "./utils/validators.js";
 
 const router = new Router();
 const auth = new AuthService();
 const tasks = new TaskService();
 
-router.on("/", () => {
-  if (auth.isAuthenticated()) {
+const state = {
+  selectedFilter: "all",
+  selectedTaskId: null,
+  notice: null,
+  loginError: "",
+  isAuthenticated: false,
+};
+
+const filters = [
+  { value: "all", label: "All tasks" },
+  { value: "pending", label: "Pending" },
+  { value: "in_progress", label: "In progress" },
+  { value: "completed", label: "Completed" },
+  { value: "high", label: "High priority" },
+];
+
+function setNotice(title, message, tone = "success") {
+  state.notice = {
+    title,
+    message,
+    tone,
+    timestamp: new Date().toLocaleTimeString(),
+  };
+}
+
+function renderLanding() {
+  if (state.isAuthenticated) {
     renderDashboard(tasks.getAll());
   } else {
-    renderLogin();
+    renderLogin(state.loginError);
+  }
+}
+
+function getVisibleTasks() {
+  const allTasks = tasks.getAll();
+  if (state.selectedFilter === "all") return allTasks;
+  if (["pending", "in_progress", "completed"].includes(state.selectedFilter)) {
+    return allTasks.filter((task) => task.status === state.selectedFilter);
+  }
+  if (state.selectedFilter === "high") {
+    return allTasks.filter((task) => task.priority === "high");
+  }
+  return allTasks;
+}
+
+function buildRecentActivity() {
+  return analytics.getStats().total
+    ? analytics.events.slice(-6).reverse().map((entry) => ({
+        label: entry.event.replace(/_/g, " "),
+        description: Object.keys(entry.metadata || {}).length
+          ? Object.entries(entry.metadata).map(([key, value]) => `${key}: ${value}`).join(" • ")
+          : "No extra metadata recorded.",
+        time: new Date(entry.timestamp).toLocaleString(),
+      }))
+    : [];
+}
+
+function buildReportCards(stats) {
+  const eventStats = analytics.getStats();
+  return [
+    {
+      title: "Telemetry events",
+      value: eventStats.total,
+      caption: "Recorded during login, task creation, dispatch actions, and completion.",
+    },
+    {
+      title: "Completion rate",
+      value: `${stats.total ? Math.round((stats.completed / stats.total) * 100) : 0}%`,
+      caption: "Useful for demoing changing UI metrics after tasks are completed.",
+    },
+    {
+      title: "Active blockers",
+      value: stats.pending + stats.inProgress,
+      caption: "Pending plus in-progress tasks that still need follow-up.",
+    },
+    {
+      title: "High-priority focus",
+      value: stats.highPriority,
+      caption: "A quick indicator that the dashboard is triaging urgent flows.",
+    },
+  ];
+}
+
+function buildDispatchItems() {
+  return [
+    {
+      action: "smoke_sync",
+      title: "Run smoke sync",
+      description: "Simulate a quick browser verification sync for checkout and dashboard entry points.",
+      cta: "Run smoke sync",
+    },
+    {
+      action: "notify_triage",
+      title: "Notify triage room",
+      description: "Broadcast a release-room update so the team knows a blocker or replay is ready for review.",
+      cta: "Ping triage room",
+    },
+  ];
+}
+
+function renderWorkspace(currentRoute) {
+  if (!auth.isAuthenticated()) {
+    router.navigate("/login");
+    return;
+  }
+
+  const visibleTasks = getVisibleTasks();
+  const selectedTask = state.selectedTaskId
+    ? tasks.getById(state.selectedTaskId)
+    : visibleTasks[0] || tasks.getAll()[0] || null;
+
+  renderDashboard({
+    currentRoute,
+    currentUser: auth.currentUser(),
+    notice: state.notice,
+    filters,
+    selectedFilter: state.selectedFilter,
+    stats: tasks.getStats(),
+    tasks: visibleTasks,
+    selectedTask,
+    recentActivity: buildRecentActivity(),
+    reportCards: buildReportCards(tasks.getStats()),
+    dispatchItems: buildDispatchItems(),
+  });
+}
+
+function handleLoginForm(form) {
+  const formData = new FormData(form);
+  const email = String(formData.get("email") || "").trim();
+  const password = String(formData.get("password") || "");
+
+  auth.login(email, password).then((result) => {
+    if (!result.success) {
+      state.loginError = result.error;
+      logger.warn("Login failed", { email, reason: result.error });
+      renderLanding();
+      return;
+    }
+
+    state.loginError = "";
+    state.selectedTaskId = tasks.getAll()[0]?.id || null;
+    analytics.track("login_success", { email, role: result.user.role });
+    notifications.emit("auth:login", result.user);
+    setNotice("Signed in", `Welcome back, ${result.user.name}. Release monitoring is ready.`, "success");
+    router.navigate("/tasks");
+  });
+}
+
+function handleCreateTask(form) {
+  const formData = new FormData(form);
+  const title = String(formData.get("title") || "").trim();
+  const description = String(formData.get("description") || "").trim();
+  const priority = String(formData.get("priority") || "medium");
+  const area = String(formData.get("area") || "triage");
+
+  if (!validateTaskTitle(title) || !description) {
+    setNotice("Task not created", "Add a clear title and description before submitting the task.", "warning");
+    renderWorkspace("/tasks");
+    return;
+  }
+
+  const task = tasks.create(title, description, auth.currentUser(), { priority, area });
+  state.selectedTaskId = task.id;
+  analytics.track("task_created", { title, priority, area });
+  notifications.emit("task:created", task);
+  setNotice("Task created", `${task.title} is now tracked in the release command center.`, "success");
+  form.reset();
+  renderWorkspace("/tasks");
+}
+
+function completeTask(taskId) {
+  const task = tasks.complete(taskId);
+  state.selectedTaskId = task.id;
+  analytics.track("task_completed", { id: task.id, title: task.title });
+  notifications.emit("task:completed", task);
+  setNotice("Task completed", `${task.title} moved into the completed column.`, "success");
+  renderWorkspace(router.getCurrentPath());
+}
+
+function reopenTask(taskId) {
+  const task = tasks.reopen(taskId);
+  state.selectedTaskId = task.id;
+  analytics.track("task_reopened", { id: task.id, title: task.title });
+  setNotice("Task reopened", `${task.title} is back in progress for another verification pass.`, "warning");
+  renderWorkspace(router.getCurrentPath());
+}
+
+function runDispatchAction(action) {
+  if (action === "smoke_sync") {
+    analytics.track("dispatch_smoke_sync", { route: router.getCurrentPath() });
+    setNotice("Smoke sync queued", "Checkout and dashboard checks were queued for the next verification window.", "success");
+  }
+
+  if (action === "notify_triage") {
+    analytics.track("dispatch_triage_ping", { route: router.getCurrentPath() });
+    setNotice("Triage room updated", "A release-room alert was drafted with the latest blocker context.", "warning");
+  }
+
+  renderWorkspace("/dispatch");
+}
+
+function applyDemoCredentials(preset) {
+  const emailField = document.getElementById("email");
+  const passwordField = document.getElementById("password");
+  if (!emailField || !passwordField) return;
+
+  if (preset === "admin") {
+    emailField.value = "admin@test.com";
+    passwordField.value = "admin123";
+  }
+}
+
+document.addEventListener("click", (event) => {
+  const target = event.target instanceof HTMLElement ? event.target : null;
+  if (!target) return;
+
+  const route = target.dataset.route;
+  if (route) {
+    if (route === "/logout") {
+      auth.logout();
+      analytics.track("logout", {});
+      state.notice = null;
+      state.selectedTaskId = null;
+      router.navigate("/");
+      return;
+    }
+
+    router.navigate(route);
+    return;
+  }
+
+  const preset = target.dataset.demoLogin;
+  if (preset) {
+    if (router.getCurrentPath() !== "/login" && router.getCurrentPath() !== "/") {
+      router.navigate("/login");
+      setTimeout(() => applyDemoCredentials(preset), 0);
+      return;
+    }
+    applyDemoCredentials(preset);
+    return;
+  }
+
+  const selectedTaskId = target.dataset.selectTask;
+  if (selectedTaskId) {
+    state.selectedTaskId = selectedTaskId;
+    renderWorkspace(router.getCurrentPath());
+    return;
+  }
+
+  const completeTaskId = target.dataset.completeTask;
+  if (completeTaskId) {
+    completeTask(completeTaskId);
+    return;
+  }
+
+  const reopenTaskId = target.dataset.reopenTask;
+  if (reopenTaskId) {
+    reopenTask(reopenTaskId);
+    return;
+  }
+
+  const filter = target.dataset.filter;
+  if (filter) {
+    state.selectedFilter = filter;
+    renderWorkspace("/tasks");
+    return;
+  }
+
+  const dispatchAction = target.dataset.dispatchAction;
+  if (dispatchAction) {
+    runDispatchAction(dispatchAction);
   }
 });
 
-router.on("/login", async (email, password) => {
-  logger.info("Login attempt", { email });
-  const result = await auth.login(email, password);
-  if (result.success) {
-    logger.info("Login successful", { email });
-    router.navigate("/");
-  } else {
-    logger.warn("Login failed", { email, reason: result.error });
-    renderLogin(result.error);
+document.addEventListener("submit", (event) => {
+  const form = event.target instanceof HTMLFormElement ? event.target : null;
+  if (!form) return;
+
+  if (form.id === "loginForm") {
+    event.preventDefault();
+    handleLoginForm(form);
+    return;
+  }
+
+  if (form.id === "createTaskForm") {
+    event.preventDefault();
+    handleCreateTask(form);
   }
 });
 
-router.on("/logout", () => {
-  auth.logout();
-  logger.info("User logged out");
-  router.navigate("/login");
-});
+notifications.onTaskCreated((task) => logger.info("Notification task created", { id: task.id }));
+notifications.onTaskCompleted((task) => logger.info("Notification task completed", { id: task.id }));
+notifications.onLoginSuccess((user) => logger.info("Notification login success", { email: user.email }));
 
-router.on("/tasks", () => {
-  if (!auth.isAuthenticated()) return router.navigate("/login");
-  renderDashboard(tasks.getAll());
-});
+analytics.track("app_loaded", { surface: "testingqa" });
 
-router.on("/tasks/create", (title, description) => {
-  if (!auth.isAuthenticated()) return router.navigate("/login");
-  const task = tasks.create(title, description, auth.currentUser());
-  logger.info("Task created", { id: task.id, title });
-  renderDashboard(tasks.getAll());
-});
+router.on("/", renderLanding);
+router.on("/login", renderLanding);
+router.on("/tasks", () => renderWorkspace("/tasks"));
+router.on("/reports", () => renderWorkspace("/reports"));
+router.on("/dispatch", () => renderWorkspace("/dispatch"));
 
-router.on("/tasks/complete", (taskId) => {
-  if (!auth.isAuthenticated()) return router.navigate("/login");
-  tasks.complete(taskId);
-  logger.info("Task completed", { id: taskId });
-  renderDashboard(tasks.getAll());
-});
+router.start();
+
+if (auth.isAuthenticated() && ["/", "/login"].includes(router.getCurrentPath())) {
+  setNotice("Session restored", "You are back inside the release workspace.", "success");
+  router.navigate("/tasks");
+}
 
 export { router, auth, tasks };
