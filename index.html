@@ -268,7 +268,40 @@
 </head>
 <body>
   <main class="app-shell">
-    <div id="app" class="panel"></div>
+    <div id="app" class="panel">
+      <div class="landing">
+        <div class="landing-copy">
+          <span class="eyebrow">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 14A6 6 0 1 1 8 2a6 6 0 0 1 0 12z"/>
+            </svg>
+            TestingQA Control Surface
+          </span>
+          <h1>Simulate a real QA control room.</h1>
+          <p>This interface mimics a production operations dashboard for testing SentinelQA's automated debugging pipeline. Use the credentials below to sign in.</p>
+          <div class="cta-row">
+            <button class="btn btn-primary" onclick="window.location.href='#login'">Open operations console</button>
+            <button class="btn btn-secondary" onclick="window.location.href='#dashboard'">View demo</button>
+          </div>
+        </div>
+        <div class="landing-side">
+          <div class="side-card">
+            <h4>Test credentials</h4>
+            <div class="credentials">
+              <div class="credential">
+                <span>Email</span>
+                <code>admin@test.com</code>
+              </div>
+              <div class="credential">
+                <span>Password</span>
+                <code>admin123</code>
+              </div>
+            </div>
+            <small class="meta">Use these to sign into the console.</small>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
   <script type="module" src="./src/app.js"></script>
 </body>
