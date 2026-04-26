@@ -1,6 +1,6 @@
 # MindFlayer — Auto-Generated Test Plan
 
-> Generated on 2026-04-26T05:52:56.565Z
+> Generated on 2026-04-26T06:54:55.202Z
 
 ## Scenario: Landing page title and core branding remain unchanged  
 1. Navigate to http://127.0.0.1:4173  
