@@ -1,6 +1,6 @@
 # MindFlayer — Auto-Generated Test Plan
 
-> Generated on 2026-04-26T08:08:08.057Z
+> Generated on 2026-04-26T08:24:32.070Z
 
 ## Mandatory Test Suite: QA Console Regression Flow
 
@@ -51,7 +51,12 @@
 3. Assert page contains "Audit checkout release gate"  
 4. Assert page contains "Review the checkout smoke pack, confirm payment widget telemetry, and prepare the rollback note before the release"  
 
-## Scenario: Login view uses correct container ID and renders without broken JSX  
+## Scenario: Login view uses correct container ID (`#app`)  
 1. Navigate to http://127.0.0.1:4173  
-2. Assert page contains "Sign In"  
-3. Assert element with id="app" exists
+2. Assert element with id `app` exists  
+3. Assert page contains "Sign In"  
+
+## Scenario: Dashboard renders without broken JSX tags (unbalanced tags fixed)  
+1. Navigate to http://127.0.0.1:4173  
+2. Click "Open operations console"  
+3. Assert page contains no raw `<` or `>` characters outside code blocks (i.e., no malformed JSX output)
